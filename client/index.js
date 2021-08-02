@@ -12,28 +12,33 @@ document.getElementById("get-balance").addEventListener('click', () => {
   
     fetch(`${server}/balance/${value}`).then((response) => {
       return response.json();
-    }).then(({ balance }) => {
-      document.getElementById("balance").innerHTML = balance;
+    }).then(( balance ) => {
+      document.getElementById("balance").innerHTML = balance.mybalance;
     });
+
 });
   
-// document.getElementById("transfer-amount").addEventListener('click', () => {
-//     const sender = document.getElementById("exchange-address").value;
-//     const amount = document.getElementById("send-amount").value;
-//     const recipient = document.getElementById("recipient").value;
-//     const message = document.getElementById("message").value;
-//     const signature_r = document.getElementById("signature_r").value;
-//     const signature_s = document.getElementById("signature_s").value;
-  
-//     const body = JSON.stringify({
-//       sender, amount, recipient, message, signature_r, signature_s
-//     });
-  
-//     const request = new Request(`${server}/send`, { method: 'POST', body });
-  
-//     fetch(request, { headers: { 'Content-Type': 'application/json' }}).then(response => {
-//       return response.json();
-//     }).then(({ balance }) => {
-//       document.getElementById("balance").innerHTML = balance;
-//     });
-// });
+document.getElementById("get-latest-block").addEventListener('click', () => {
+
+  fetch(`${server}/latest-block`).then((response) => {
+    return response.json();
+  }).then(( {block} ) => {
+    document.getElementById("latest-block").innerHTML = `<br>
+      Transaction Hash----->${block.hash} <br>
+      Block Number----->${block.number} <br>
+      Miner----->${block.miner} <br>
+      Transcation Count:----->${block.transactions.length}
+      `;
+  });
+});
+
+document.getElementById("get-gas-estimate").addEventListener('click', () => {
+
+  fetch(`${server}/gas-estimate`).then((response) => {
+    return response.json();
+  }).then(( estimate ) => {
+    document.getElementById("gas-estimate").innerHTML = `<br>
+      Gas estimate based on last block: ${estimate.result} gwei
+      `;
+  });
+});

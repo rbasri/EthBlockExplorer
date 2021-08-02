@@ -1,6 +1,7 @@
 const ethers = require('ethers');
 const express = require('express');
 const cors = require('cors');
+const { parseEther } = require('ethers/lib/utils');
 const port = 3042;
 const app = express();
 
@@ -16,14 +17,31 @@ app.use(express.json());
 
 //Simple method for getting the balance of an address
 app.get('/balance/:address', async (req, res) => {
-    console.log('got here2');
     const {address} = req.params;
     const balance = await provider.getBalance(address);
-    const mybalance = balance._hex;
-    console.log( {mybalance} );
+    // const mybalance = ethers.utils.parseEther(balance._hex);
+    const mybalance = ethers.utils.formatEther(BigInt(balance._hex)).toString(10).substring(0,4);
     res.send({ mybalance });
 });
 
+app.get('/latest-block', async (req, res) => { 
+    const lastBlock = provider.getBlockNumber();
+    const block = await provider.getBlock(lastBlock);
+    res.send({ block })
+});
+
+app.get('/gas-estimate', async (req, res) => {
+    const lastBlock = provider.getBlockNumber();
+    let gas = 0;
+    const block = await provider.getBlockWithTransactions(lastBlock);
+    const transactions = block.transactions;
+    const transactionCount = transactions.length
+    for(let i=0; i<transactionCount; i++){
+        gas += parseFloat(ethers.utils.formatUnits(ethers.BigNumber.from(transactions[i].gasPrice),"gwei"));
+    }
+    const result = (gas / transactionCount).toString().substring(0,4);
+    res.send({ result })
+});
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}!`);
